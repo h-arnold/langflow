@@ -1,6 +1,9 @@
-import { useGetProfilePicturesQuery } from "@/controllers/API/queries/files";
+import {
+  ProfilePicturesQueryResponse,
+  useGetProfilePicturesQuery,
+} from "@/controllers/API/queries/files";
 import * as Form from "@radix-ui/react-form";
-import { useEffect, useState } from "react";
+import { UseQueryResult } from "@tanstack/react-query";
 import { Button } from "../../../../../../components/ui/button";
 import {
   Card,
@@ -17,7 +20,7 @@ type ProfilePictureFormComponentProps = {
   profilePicture: string;
   handleInput: (event: any) => void;
   handlePatchProfilePicture: (gradient: string) => void;
-  handleGetProfilePictures: () => undefined;
+  handleGetProfilePictures: UseQueryResult<ProfilePicturesQueryResponse>;
   userData: any;
 };
 const ProfilePictureFormComponent = ({
@@ -27,7 +30,7 @@ const ProfilePictureFormComponent = ({
   handleGetProfilePictures,
   userData,
 }: ProfilePictureFormComponentProps) => {
-  const { data: response, isFetching } = useGetProfilePicturesQuery({});
+  const { isLoading, data, isFetching } = useGetProfilePicturesQuery();
 
   return (
     <Form.Root
@@ -46,8 +49,8 @@ const ProfilePictureFormComponent = ({
         <CardContent>
           <div className="py-2">
             <ProfilePictureChooserComponent
-              profilePictures={response}
-              loading={isFetching}
+              profilePictures={data}
+              loading={isLoading || isFetching}
               value={
                 profilePicture == ""
                   ? userData?.profile_image ??

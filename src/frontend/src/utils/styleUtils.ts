@@ -1,3 +1,6 @@
+import { AIMLIcon } from "@/icons/AIML";
+import { AthenaIcon } from "@/icons/athena/index";
+import { freezeAllIcon } from "@/icons/freezeAll";
 import {
   AlertCircle,
   AlertTriangle,
@@ -14,6 +17,7 @@ import {
   Braces,
   BrainCircuit,
   Check,
+  CheckCheck,
   CheckCircle2,
   ChevronDown,
   ChevronLeft,
@@ -132,6 +136,7 @@ import {
   SquarePen,
   Store,
   SunIcon,
+  Table,
   TerminalIcon,
   TerminalSquare,
   TextCursorInput,
@@ -167,6 +172,8 @@ import { BotMessageSquareIcon } from "../icons/BotMessageSquare";
 import { CassandraIcon } from "../icons/Cassandra";
 import { ChromaIcon } from "../icons/ChromaIcon";
 import { CohereIcon } from "../icons/Cohere";
+import { ComposioIcon } from "../icons/Composio";
+import { ConfluenceIcon } from "../icons/Confluence";
 import { CouchbaseIcon } from "../icons/Couchbase";
 import { CrewAiIcon } from "../icons/CrewAI";
 import { ElasticsearchIcon } from "../icons/ElasticsearchStore";
@@ -174,6 +181,7 @@ import { EvernoteIcon } from "../icons/Evernote";
 import { FBIcon } from "../icons/FacebookMessenger";
 import { FirecrawlIcon } from "../icons/Firecrawl";
 import { GitBookIcon } from "../icons/GitBook";
+import { GitLoaderIcon } from "../icons/GitLoader";
 import { GoogleIcon } from "../icons/Google";
 import { GoogleGenerativeAIIcon } from "../icons/GoogleGenerativeAI";
 import {
@@ -274,6 +282,7 @@ export const nodeColors: { [char: string]: string } = {
   wrappers: "#E6277A",
   helpers: "#31A3CC",
   prototypes: "#E6277A",
+  astra_assistants: "#272541",
   langchain_utilities: "#31A3CC",
   output_parsers: "#E6A627",
   // custom_components: "#ab11ab",
@@ -315,6 +324,7 @@ export const nodeNames: { [char: string]: string } = {
   retrievers: "Retrievers",
   helpers: "Helpers",
   prototypes: "Prototypes",
+  astra_assistants: "Astra Assistants",
   langchain_utilities: "Utilities",
   output_parsers: "Output Parsers",
   custom_components: "Custom",
@@ -383,7 +393,9 @@ export const nodeIconsLucide: iconsType = {
   HuggingFaceEmbeddings: HuggingFaceIcon,
   IFixitLoader: IFixIcon,
   CrewAI: CrewAiIcon,
+  Composio: ComposioIcon,
   Meta: MetaIcon,
+  CheckCheck,
   Midjorney: MidjourneyIcon,
   MongoDBAtlasVectorSearch: MongoDBIcon,
   MongoDB: MongoDBIcon,
@@ -430,6 +442,7 @@ export const nodeIconsLucide: iconsType = {
   textsplitters: Scissors,
   wrappers: Gift,
   helpers: Wand2,
+  astra_assistants: Sparkles,
   ScanEye,
   prototypes: FlaskConical,
   langchain_utilities: PocketKnife,
@@ -574,4 +587,11 @@ export const nodeIconsLucide: iconsType = {
   MistralAI: MistralIcon,
   Upstash: UpstashSvgIcon,
   PGVector: CpuIcon,
+  Confluence: ConfluenceIcon,
+  FreezeAll: freezeAllIcon,
+  Table: Table,
+  AIML: AIMLIcon,
+  "AI/ML": AIMLIcon,
+  GitLoader: GitLoaderIcon,
+  athenaIcon: AthenaIcon,
 };

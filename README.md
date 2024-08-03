@@ -18,7 +18,7 @@
     <a href="https://docs.langflow.org" style="text-decoration: underline;">Docs</a> -
     <a href="https://discord.com/invite/EqksyE2EX9" style="text-decoration: underline;">Join our Discord</a> -
     <a href="https://twitter.com/langflow_ai" style="text-decoration: underline;">Follow us on X</a> -
-    <a href="https://huggingface.co/spaces/Langflow/Langflow-Preview" style="text-decoration: underline;">Live demo</a>
+    <a href="https://huggingface.co/spaces/Langflow/Langflow" style="text-decoration: underline;">Live demo</a>
 </p>
 
 <p align="center">
@@ -34,6 +34,8 @@
   <a href="./README.md"><img alt="README in English" src="https://img.shields.io/badge/English-d9d9d9"></a>
   <a href="./README.PT.md"><img alt="README in Portuguese" src="https://img.shields.io/badge/Portuguese-d9d9d9"></a>
   <a href="./README.zh_CN.md"><img alt="README in Simplified Chinese" src="https://img.shields.io/badge/简体中文-d9d9d9"></a>
+  <a href="./README.ja.md"><img alt="README in Japanese" src="https://img.shields.io/badge/日本語-d9d9d9"></a>
+  <a href="./README.KR.md"><img alt="README in KOREAN" src="https://img.shields.io/badge/한국어-d9d9d9"></a>
 </div>
 
 <p align="center">
@@ -42,9 +44,9 @@
 
 # 📝 Content
 
-- [](#)
 - [📝 Content](#-content)
 - [📦 Get Started](#-get-started)
+- [Running Langflow from a Cloned Repository](#running-langflow-from-a-cloned-repository)
 - [🎨 Create Flows](#-create-flows)
 - [Deploy](#deploy)
   - [DataStax Langflow](#datastax-langflow)
@@ -68,18 +70,45 @@ You can install Langflow with pip:
 # Make sure you have >=Python 3.10 installed on your system.
 python -m pip install langflow -U
 ```
-Or
-
-If you would like to install from your cloned repo, you can build and install Langflow's frontend and backend with:
-
-```shell
-make install_frontend && make build_frontend && make install_backend
-```
 
 Then, run Langflow with:
 
 ```shell
 python -m langflow run
+```
+
+# Running Langflow from a Cloned Repository
+
+If you prefer to run Langflow from a cloned repository rather than installing it via pip, follow these steps:
+
+1. **Clone the Repository**
+
+First, clone the Langflow repository from GitHub:
+
+```shell
+git clone https://github.com/langflow-ai/langflow.git
+```
+
+Navigate into the cloned directory:
+
+```shell
+cd langflow
+```
+
+2. **Build and Install Dependencies**
+
+To build and install Langflow’s frontend and backend, use the following commands:
+
+```shell
+make install_frontend && make build_frontend && make install_backend
+```
+
+3. **Run Langflow**
+
+Once the installation is complete, you can run Langflow with:
+
+```shell
+poetry run python -m langflow run
 ```
 
 # 🎨 Create Flows
@@ -106,7 +135,7 @@ DataStax Langflow is a hosted version of Langflow integrated with [AstraDB](http
 
 ## Deploy Langflow on Hugging Face Spaces
 
-You can also preview Langflow in [HuggingFace Spaces](https://huggingface.co/spaces/Langflow/Langflow-Preview). [Clone the space using this link](https://huggingface.co/spaces/Langflow/Langflow-Preview?duplicate=true) to create your own Langflow workspace in minutes.
+You can also preview Langflow in [HuggingFace Spaces](https://huggingface.co/spaces/Langflow/Langflow). [Clone the space using this link](https://huggingface.co/spaces/Langflow/Langflow?duplicate=true) to create your own Langflow workspace in minutes.
 
 ## Deploy Langflow on Google Cloud Platform
 
