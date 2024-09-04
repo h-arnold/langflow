@@ -7,19 +7,21 @@ import orjson
 from loguru import logger
 from pydantic import PydanticDeprecatedSince20
 
-from langflow.custom import Component, CustomComponent
 from langflow.custom.eval import eval_custom_component_code
+from langflow.events.event_manager import EventManager
 from langflow.schema import Data
 from langflow.schema.artifact import get_artifact_type, post_process_raw
 from langflow.services.deps import get_tracing_service
 
 if TYPE_CHECKING:
+    from langflow.custom import Component, CustomComponent
     from langflow.graph.vertex.base import Vertex
 
 
 async def instantiate_class(
     vertex: "Vertex",
     user_id=None,
+    event_manager: EventManager | None = None,
 ) -> Any:
     """Instantiate class from module type and key, and params"""
 
@@ -39,6 +41,8 @@ async def instantiate_class(
         _vertex=vertex,
         _tracing_service=get_tracing_service(),
     )
+    if hasattr(custom_component, "set_event_manager"):
+        custom_component.set_event_manager(event_manager)
     return custom_component, custom_params
 
 
@@ -54,9 +58,9 @@ async def get_instance_results(
     )
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", category=PydanticDeprecatedSince20)
-        if base_type == "custom_components" and isinstance(custom_component, CustomComponent):
+        if base_type == "custom_components":
             return await build_custom_component(params=custom_params, custom_component=custom_component)
-        elif base_type == "component" and isinstance(custom_component, Component):
+        elif base_type == "component":
             return await build_component(params=custom_params, custom_component=custom_component)
         else:
             raise ValueError(f"Base type {base_type} not found.")
@@ -112,8 +116,8 @@ def update_params_with_load_from_db_fields(
                 try:
                     key = custom_component.variables(params[field], field)
                 except ValueError as e:
-                    # check if "User id is not set" is in the error message
-                    if "User id is not set" in str(e) and not fallback_to_env_vars:
+                    # check if "User id is not set" is in the error message, this is an internal bug
+                    if "User id is not set" in str(e):
                         raise e
                     logger.debug(str(e))
                 if fallback_to_env_vars and key is None:

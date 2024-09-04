@@ -33,6 +33,7 @@ export default function IOModal({
   open,
   setOpen,
   disable,
+  isPlayground,
 }: IOModalPropsType): JSX.Element {
   const allNodes = useFlowStore((state) => state.nodes);
   const inputs = useFlowStore((state) => state.inputs).filter(
@@ -107,16 +108,19 @@ export default function IOModal({
   const setLockChat = useFlowStore((state) => state.setLockChat);
   const [chatValue, setChatValue] = useState("");
   const isBuilding = useFlowStore((state) => state.isBuilding);
-  const currentFlow = useFlowsManagerStore((state) => state.currentFlow);
+  const currentFlowId = useFlowsManagerStore((state) => state.currentFlowId);
   const setNode = useFlowStore((state) => state.setNode);
   const [sessions, setSessions] = useState<string[]>([]);
   const messages = useMessagesStore((state) => state.messages);
   const flowPool = useFlowStore((state) => state.flowPool);
 
-  const { refetch } = useGetMessagesQuery({
-    mode: "union",
-    id: currentFlow?.id,
-  });
+  const { refetch } = useGetMessagesQuery(
+    {
+      mode: "union",
+      id: currentFlowId,
+    },
+    { enabled: open },
+  );
 
   async function sendMessage({
     repeat = 1,
@@ -158,13 +162,9 @@ export default function IOModal({
   }, [allNodes.length]);
 
   useEffect(() => {
-    refetch();
-  }, [open]);
-
-  useEffect(() => {
     const sessions = new Set<string>();
     messages
-      .filter((message) => message.flow_id === currentFlow!.id)
+      .filter((message) => message.flow_id === currentFlowId)
       .forEach((row) => {
         sessions.add(row.session_id);
       });
@@ -178,6 +178,7 @@ export default function IOModal({
       open={open}
       setOpen={setOpen}
       disable={disable}
+      type={isPlayground ? "modal" : undefined}
       onSubmit={() => sendMessage({ repeat: 1 })}
     >
       <BaseModal.Trigger>{children}</BaseModal.Trigger>
@@ -375,7 +376,7 @@ export default function IOModal({
                                 size="md"
                                 className="block truncate"
                               >
-                                {session === currentFlow?.id
+                                {session === currentFlowId
                                   ? "Default Session"
                                   : session}
                               </Badge>
@@ -491,7 +492,7 @@ export default function IOModal({
                     ) && (
                       <SessionView
                         session={selectedViewField.id}
-                        id={currentFlow!.id}
+                        id={currentFlowId}
                       />
                     )}
                   </div>

@@ -28,10 +28,10 @@ from langflow.initial_setup.setup import (
 )
 from langflow.interface.types import get_and_cache_all_types_dict
 from langflow.interface.utils import setup_llm_caching
+from langflow.logging.logger import configure
 from langflow.services.deps import get_cache_service, get_settings_service, get_telemetry_service
 from langflow.services.plugins.langfuse_plugin import LangfuseInstance
 from langflow.services.utils import initialize_services, teardown_services
-from langflow.utils.logger import configure
 
 # Ignore Pydantic deprecation warnings from Langchain
 warnings.filterwarnings("ignore", category=PydanticDeprecatedSince20)
@@ -132,8 +132,6 @@ def create_app():
         allow_headers=["*"],
     )
     app.add_middleware(JavaScriptMIMETypeMiddleware)
-    # ! Deactivating this until we find a better solution
-    # app.add_middleware(RequestCancelledMiddleware)
 
     @app.middleware("http")
     async def flatten_query_string_lists(request: Request, call_next):
@@ -157,7 +155,7 @@ def create_app():
             raise ValueError(f"Invalid port number {prome_port_str}")
 
     if settings.prometheus_enabled:
-        from prometheus_client import start_http_server
+        from prometheus_client import start_http_server  # type: ignore
 
         start_http_server(settings.prometheus_port)
 

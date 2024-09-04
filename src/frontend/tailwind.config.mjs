@@ -67,6 +67,7 @@ const config = {
         "dark-blue": "var(--dark-blue)",
         "dark-gray": "var(--dark-gray)",
         "dark-red": "var(--dark-red)",
+        "note-placeholder": "var(--note-placeholder)",
         error: {
           DEFAULT: "var(--error)",
           background: "var(--error-background)",
@@ -108,6 +109,7 @@ const config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        "node-selected": "hsl(var(--node-selected))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
