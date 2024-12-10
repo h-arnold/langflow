@@ -1,30 +1,40 @@
-name: Docker Build and Push
+name: Push Custom Root Docker Image to GCR
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build-and-push:
+
+  build:
+
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      # Step 1: Checkout the code from the repository
+      - uses: actions/checkout@v4
 
-      # Step 2: Log in to GitHub Container Registry
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      # Step 3: Build the Docker image
-      - name: Build the Docker Image
+      # Step 2: Build the Docker image using the specified Dockerfile
+      - name: Build the Docker image
         run: |
           docker build \
             --file docker/build_and_push.Dockerfile \
-            --tag ghcr.io/${{ github.repository_owner }}/langflow-backend:latest .
+            --tag eu.gcr.io/${{ secrets.PROJECT_ID }}/langflow-backend:latest \
+            docker
 
-      # Step 4: Push the Docker image to GitHub Container Registry
-      - name: Push the Docker Image
-        run: docker push ghcr.io/${{ github.repository_owner }}/langflow-backend:latest
+      # Step 3: Log in to Google Container Registry
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker to use gcloud as a credential helper
+        run: |
+          gcloud auth configure-docker eu.gcr.io
+
+      # Step 4: Push the Docker image to Google Container Registry (GCR)
+      - name: Push the Docker image
+        run: |
+          docker push eu.gcr.io/${{ secrets.PROJECT_ID }}/langflow-backend:latest
