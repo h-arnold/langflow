@@ -1,4 +1,4 @@
-name: Docker Build and Push
+name: Root Docker Build and Push
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-            --file ./docker/build_and_push.Dockerfile \
+            --file ./docker/build_and_push_root.Dockerfile \
             --tag eu.gcr.io/${{ secrets.PROJECT_ID }}/langflow-backend:latest \
             .
 
