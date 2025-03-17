@@ -3,81 +3,66 @@
 
 ################################
 # BUILDER-BASE
-# Used to build deps + create our virtual environment
+# Build dependencies and create our virtual environment
 ################################
 
-# 1. use python:3.12.3-slim as the base image until https://github.com/pydantic/pydantic-core/issues/1292 gets resolved
-# 2. do not add --platform=$BUILDPLATFORM because the pydantic binaries must be resolved for the final architecture
-# Use a Python image with uv pre-installed
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS builder
 
-# Install the project into `/app`
 WORKDIR /app
 
-# Enable bytecode compilation
+# Enable bytecode compilation and set linking mode
 ENV UV_COMPILE_BYTECODE=1
-
-# Copy from the cache instead of linking since it's a mounted volume
 ENV UV_LINK_MODE=copy
 
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install --no-install-recommends -y \
-    # deps for building python deps
-    build-essential \
-    git \
-    # npm
-    npm \
-    # gcc
-    gcc \
+# Install build dependencies (single layer)
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install --no-install-recommends -y \
+       build-essential \
+       git \
+       npm \
+       gcc \
+       curl && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Download, extract and copy only necessary files from the Langflow 1.2.0 release,
+# and run the initial uv sync (single layer)
+RUN curl -L https://github.com/langflow-ai/langflow/archive/refs/tags/1.2.0.tar.gz -o /tmp/langflow.tar.gz && \
+    mkdir -p /tmp/langflow && \
+    tar -xzvf /tmp/langflow.tar.gz -C /tmp/langflow --strip 1 && \
+    cp -r /tmp/langflow/src /app/src && \
+    cp /tmp/langflow/pyproject.toml /app/pyproject.toml && \
+    cp /tmp/langflow/uv.lock /app/uv.lock && \
+    cp /tmp/langflow/README.md /app/README.md && \
+    uv sync --frozen --no-install-project --no-editable
 
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=README.md,target=README.md \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    --mount=type=bind,source=src/backend/base/README.md,target=src/backend/base/README.md \
-    --mount=type=bind,source=src/backend/base/uv.lock,target=src/backend/base/uv.lock \
-    --mount=type=bind,source=src/backend/base/pyproject.toml,target=src/backend/base/pyproject.toml \
-    uv sync --frozen --no-install-project --no-editable --extra postgresql
+# Build the frontend assets in one RUN command
+RUN mkdir -p /tmp/src && cp -r /app/src/frontend /tmp/src/frontend && \
+    cd /tmp/src/frontend && \
+    npm ci && npm run build && \
+    cp -r build /app/src/backend/langflow/frontend && \
+    rm -rf /tmp/src/frontend
 
-COPY ./src /app/src
-
-COPY src/frontend /tmp/src/frontend
-WORKDIR /tmp/src/frontend
-RUN --mount=type=cache,target=/root/.npm \
-    npm ci \
-    && npm run build \
-    && cp -r build /app/src/backend/langflow/frontend \
-    && rm -rf /tmp/src/frontend
-
-WORKDIR /app
-COPY ./pyproject.toml /app/pyproject.toml
-COPY ./uv.lock /app/uv.lock
-COPY ./README.md /app/README.md
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-editable --extra postgresql
+# Finalise backend dependency installation (single layer)
+RUN uv sync --frozen --no-editable
 
 ################################
 # RUNTIME
-# Setup user, utilities and copy the virtual environment only
+# Copy the virtual environment only and run as root
 ################################
+
 FROM python:3.12.3-slim AS runtime
 
-RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install git -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y git && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+    
+# Copy the virtual environment built in the builder stage
+COPY --from=builder /app/.venv /app/.venv
 
-COPY --from=builder --chown=1000 /app/.venv /app/.venv
-
-# Place executables in the environment at the front of the path
+# Place executables in the environment at the front of the PATH
 ENV PATH="/app/.venv/bin:$PATH"
 
+# Metadata labels
 LABEL org.opencontainers.image.title=langflow
 LABEL org.opencontainers.image.authors=['Langflow']
 LABEL org.opencontainers.image.licenses=MIT
@@ -86,7 +71,9 @@ LABEL org.opencontainers.image.source=https://github.com/langflow-ai/langflow
 
 WORKDIR /app
 
+# Environment variables for Langflow
 ENV LANGFLOW_HOST=0.0.0.0
 ENV LANGFLOW_PORT=7860
 
+# Run Langflow (running as root for compatibility with Cloud Run’s in-memory file system)
 CMD ["langflow", "run"]
