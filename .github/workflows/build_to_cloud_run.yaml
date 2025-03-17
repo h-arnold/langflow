@@ -1,4 +1,4 @@
-name: Build and Push Docker Image for Assessment Bot
+name: Build Docker Image for Assessm
 on:
   push:
     branches: [ main ]
@@ -28,7 +28,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -f /docker/build_AssessmentBot.Dockerfile -t ${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/langflow/langflow-custom:latest .
+          docker build -f docker/build_AssessmentBot.Dockerfile -t ${{ secrets.GCP_LOCATION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/langflow/langflow-custom:latest .
 
       - name: Push Docker image
         run: |
